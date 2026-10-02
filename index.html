@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#D4213D">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>TMB · Objectes Perduts</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚇</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-area">
+                <div class="tmb-logo">
+                    <span class="tmb-icon">T</span>
+                </div>
+                <div class="header-text">
+                    <h1>Objectes Perduts</h1>
+                    <p class="subtitle">Transports Metropolitans de Barcelona</p>
+                </div>
+            </div>
+            <div class="connection-status" id="connectionStatus">
+                <span class="status-dot"></span>
+                <span class="status-text">Connectant...</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+
+        <!-- ==================== TAB: TROBAT ==================== -->
+        <section class="tab-panel active" id="panelTrobat">
+            <div class="panel-header">
+                <div class="panel-icon trobat-icon">📦</div>
+                <h2>He trobat un objecte</h2>
+                <p>Omple el formulari per registrar un objecte trobat al transport públic.</p>
+            </div>
+
+            <form class="form-card" id="formTrobat" novalidate>
+                <div class="form-group">
+                    <label for="trobat-que">Què has trobat? *</label>
+                    <input type="text" id="trobat-que" placeholder="Ex: Mòbil Samsung negre, paraigua blau..." required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="trobat-linia">Línia</label>
+                        <select id="trobat-linia">
+                            <option value="">Selecciona...</option>
+                            <optgroup label="Metro">
+                                <option value="L1">L1 - Fondo / Hospitalet</option>
+                                <option value="L2">L2 - Paral·lel / Badalona</option>
+                                <option value="L3">L3 - Zona Universitària / Trinitat Nova</option>
+                                <option value="L4">L4 - Trinitat Nova / La Pau</option>
+                                <option value="L5">L5 - Cornellà / Vall d'Hebron</option>
+                                <option value="L9N">L9 Nord</option>
+                                <option value="L9S">L9 Sud</option>
+                                <option value="L10N">L10 Nord</option>
+                                <option value="L10S">L10 Sud</option>
+                                <option value="L11">L11 - Trinitat Nova / Can Cuiàs</option>
+                            </optgroup>
+                            <optgroup label="Bus">
+                                <option value="Bus">Autobús (especifica a notes)</option>
+                            </optgroup>
+                            <optgroup label="Tram">
+                                <option value="Tram">Tramvia</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="trobat-estacio">Estació / Parada</label>
+                        <input type="text" id="trobat-estacio" placeholder="Ex: Passeig de Gràcia">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="trobat-data">Data *</label>
+                        <input type="date" id="trobat-data" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="trobat-hora">Hora aprox.</label>
+                        <input type="time" id="trobat-hora">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="trobat-categoria">Categoria *</label>
+                    <select id="trobat-categoria" required>
+                        <option value="">Selecciona categoria...</option>
+                        <option value="mobil">📱 Mòbil / Tauleta</option>
+                        <option value="cartera">👛 Cartera / Documentació</option>
+                        <option value="claus">🔑 Claus</option>
+                        <option value="roba">🧥 Roba / Complements</option>
+                        <option value="bossa">👜 Bossa / Motxilla</option>
+                        <option value="auriculars">🎧 Auriculars / Electrònica</option>
+                        <option value="paraigua">☂️ Paraigua</option>
+                        <option value="joguina">🧸 Joguina</option>
+                        <option value="llibre">📚 Llibre / Documents</option>
+                        <option value="altres">📦 Altres</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="trobat-descripcio">Descripció detallada</label>
+                    <textarea id="trobat-descripcio" rows="3" placeholder="Color, marca, estat, algun detall identificatiu..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="trobat-contacte">El teu contacte (email o telèfon) *</label>
+                    <input type="text" id="trobat-contacte" placeholder="Ex: joan@email.com o 612345678" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="trobat-nom">El teu nom</label>
+                    <input type="text" id="trobat-nom" placeholder="Ex: Joan García">
+                </div>
+
+                <button type="submit" class="btn-submit trobat-btn">
+                    <span class="btn-icon">📦</span>
+                    Registrar objecte trobat
+                </button>
+            </form>
+
+            <!-- Registres recents -->
+            <div class="recent-section">
+                <h3>📋 Últims objectes trobats</h3>
+                <div class="items-list" id="llistaTrobats">
+                    <div class="empty-state">
+                        <span>🔍</span>
+                        <p>No hi ha objectes registrats encara</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB: PERDUT ==================== -->
+        <section class="tab-panel" id="panelPerdut">
+            <div class="panel-header">
+                <div class="panel-icon perdut-icon">🔎</div>
+                <h2>He perdut un objecte</h2>
+                <p>Registra el teu objecte perdut i t'avisarem si algú el troba.</p>
+            </div>
+
+            <form class="form-card" id="formPerdut" novalidate>
+                <div class="form-group">
+                    <label for="perdut-que">Què has perdut? *</label>
+                    <input type="text" id="perdut-que" placeholder="Ex: Cartera marró amb documentació..." required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="perdut-linia">Línia (si ho recordes)</label>
+                        <select id="perdut-linia">
+                            <option value="">Selecciona...</option>
+                            <optgroup label="Metro">
+                                <option value="L1">L1 - Fondo / Hospitalet</option>
+                                <option value="L2">L2 - Paral·lel / Badalona</option>
+                                <option value="L3">L3 - Zona Universitària / Trinitat Nova</option>
+                                <option value="L4">L4 - Trinitat Nova / La Pau</option>
+                                <option value="L5">L5 - Cornellà / Vall d'Hebron</option>
+                                <option value="L9N">L9 Nord</option>
+                                <option value="L9S">L9 Sud</option>
+                                <option value="L10N">L10 Nord</option>
+                                <option value="L10S">L10 Sud</option>
+                                <option value="L11">L11 - Trinitat Nova / Can Cuiàs</option>
+                            </optgroup>
+                            <optgroup label="Bus">
+                                <option value="Bus">Autobús (especifica a notes)</option>
+                            </optgroup>
+                            <optgroup label="Tram">
+                                <option value="Tram">Tramvia</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="perdut-estacio">Estació / Parada</label>
+                        <input type="text" id="perdut-estacio" placeholder="Ex: Diagonal">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="perdut-data">Data de pèrdua *</label>
+                        <input type="date" id="perdut-data" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="perdut-hora">Hora aprox.</label>
+                        <input type="time" id="perdut-hora">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="perdut-categoria">Categoria *</label>
+                    <select id="perdut-categoria" required>
+                        <option value="">Selecciona categoria...</option>
+                        <option value="mobil">📱 Mòbil / Tauleta</option>
+                        <option value="cartera">👛 Cartera / Documentació</option>
+                        <option value="claus">🔑 Claus</option>
+                        <option value="roba">🧥 Roba / Complements</option>
+                        <option value="bossa">👜 Bossa / Motxilla</option>
+                        <option value="auriculars">🎧 Auriculars / Electrònica</option>
+                        <option value="paraigua">☂️ Paraigua</option>
+                        <option value="joguina">🧸 Joguina</option>
+                        <option value="llibre">📚 Llibre / Documents</option>
+                        <option value="altres">📦 Altres</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="perdut-descripcio">Descripció detallada</label>
+                    <textarea id="perdut-descripcio" rows="3" placeholder="Color, marca, mida, algun detall que ajudi a identificar-lo..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="perdut-contacte">El teu contacte (email o telèfon) *</label>
+                    <input type="text" id="perdut-contacte" placeholder="Ex: maria@email.com o 698765432" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="perdut-nom">El teu nom</label>
+                    <input type="text" id="perdut-nom" placeholder="Ex: Maria López">
+                </div>
+
+                <button type="submit" class="btn-submit perdut-btn">
+                    <span class="btn-icon">🔎</span>
+                    Registrar objecte perdut
+                </button>
+            </form>
+
+            <!-- Registres recents -->
+            <div class="recent-section">
+                <h3>📋 Últims objectes perduts</h3>
+                <div class="items-list" id="llistaPerduts">
+                    <div class="empty-state">
+                        <span>🔍</span>
+                        <p>No hi ha objectes registrats encara</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB: MATCHES ==================== -->
+        <section class="tab-panel" id="panelMatches">
+            <div class="panel-header">
+                <div class="panel-icon match-icon">🤝</div>
+                <h2>Seguiment de matches</h2>
+                <p>Consulta les coincidències entre objectes trobats i perduts.</p>
+            </div>
+
+            <!-- Filtres de matches -->
+            <div class="match-filters">
+                <button class="filter-btn active" data-filter="tots">Tots</button>
+                <button class="filter-btn" data-filter="pendent">⏳ Pendents</button>
+                <button class="filter-btn" data-filter="confirmat">✅ Confirmats</button>
+                <button class="filter-btn" data-filter="tancat">🔒 Tancats</button>
+            </div>
+
+            <div class="matches-list" id="llistaMatches">
+                <div class="empty-state">
+                    <span>🤝</span>
+                    <p>El sistema de match automàtic s'activarà properament.</p>
+                    <p class="hint">Quan es detectin coincidències entre objectes trobats i perduts, apareixeran aquí.</p>
+                </div>
+            </div>
+
+            <!-- Info futura -->
+            <div class="info-card">
+                <div class="info-icon">ℹ️</div>
+                <div class="info-text">
+                    <h4>Com funciona el matching?</h4>
+                    <p>El sistema compara automàticament els objectes trobats amb els perduts basant-se en la categoria, línia, estació i dates. Quan hi ha una coincidència potencial, es crea un <strong>match pendent</strong> que es pot confirmar o descartar.</p>
+                    <div class="status-legend">
+                        <div class="legend-item">
+                            <span class="legend-dot pendent"></span>
+                            <span>Pendent: Coincidència potencial detectada</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot confirmat"></span>
+                            <span>Confirmat: Les dues parts han validat el match</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot tancat"></span>
+                            <span>Tancat: Objecte retornat amb èxit</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-tab="panelTrobat">
+            <span class="nav-icon">📦</span>
+            <span class="nav-label">Trobat</span>
+        </button>
+        <button class="nav-item" data-tab="panelPerdut">
+            <span class="nav-icon">🔎</span>
+            <span class="nav-label">Perdut</span>
+        </button>
+        <button class="nav-item" data-tab="panelMatches">
+            <span class="nav-icon">🤝</span>
+            <span class="nav-label">Matches</span>
+            <span class="nav-badge" id="matchBadge" style="display:none;">0</span>
+        </button>
+    </nav>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast">
+        <span class="toast-icon"></span>
+        <span class="toast-msg"></span>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
