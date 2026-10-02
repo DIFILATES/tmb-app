@@ -1,0 +1,74 @@
+name: "\U0001F527 Gestionar"
+
+on:
+  workflow_dispatch:
+    inputs:
+      accio:
+        description: "Acció a realitzar"
+        required: true
+        type: choice
+        options:
+          - esborrar
+          - crear-match
+          - confirmar-match
+          - tancar-match
+          - llistar
+      id:
+        description: "ID de l'objecte o match (ex: T001, P002, M001)"
+        required: false
+        type: string
+      id2:
+        description: "Segon ID (només per crear-match: ID del perdut)"
+        required: false
+        type: string
+      notes:
+        description: "Notes addicionals"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  gestionar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Executar acció
+        env:
+          ACTION: ${{ inputs.accio }}
+          ID: ${{ inputs.id }}
+          ID2: ${{ inputs.id2 }}
+          NOTES: ${{ inputs.notes }}
+        run: python scripts/update_db.py
+
+      - name: Commit i push
+        if: inputs.accio != 'llistar'
+        run: |
+          git config user.name "TMB Bot"
+          git config user.email "bot@tmb.cat"
+          git add data/db.json
+          git diff --cached --quiet && echo "Sense canvis" && exit 0
+          git commit -m "🔧 ${{ inputs.accio }}: ${{ inputs.id }} ${{ inputs.id2 }}"
+          git push
+
+  deploy:
+    needs: gestionar
+    if: ${{ inputs.accio != 'llistar' }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      - id: deployment
+        uses: actions/deploy-pages@v4

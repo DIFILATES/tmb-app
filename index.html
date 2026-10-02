@@ -26,9 +26,9 @@
                     <p class="subtitle">Transports Metropolitans de Barcelona</p>
                 </div>
             </div>
-            <div class="connection-status" id="connectionStatus">
-                <span class="status-dot"></span>
-                <span class="status-text">Connectant...</span>
+            <div class="data-badge" id="dataBadge">
+                <span class="badge-dot"></span>
+                <span class="badge-text">Carregant...</span>
             </div>
         </div>
     </header>
@@ -39,9 +39,9 @@
         <!-- ==================== TAB: TROBAT ==================== -->
         <section class="tab-panel active" id="panelTrobat">
             <div class="panel-header">
-                <div class="panel-icon trobat-icon">📦</div>
+                <div class="panel-icon">📦</div>
                 <h2>He trobat un objecte</h2>
-                <p>Omple el formulari per registrar un objecte trobat al transport públic.</p>
+                <p>Omple el formulari i nosaltres ens encarreguem de buscar-ne el propietari.</p>
             </div>
 
             <form class="form-card" id="formTrobat" novalidate>
@@ -49,38 +49,28 @@
                     <label for="trobat-que">Què has trobat? *</label>
                     <input type="text" id="trobat-que" placeholder="Ex: Mòbil Samsung negre, paraigua blau..." required>
                 </div>
-
                 <div class="form-row">
                     <div class="form-group">
                         <label for="trobat-linia">Línia</label>
                         <select id="trobat-linia">
                             <option value="">Selecciona...</option>
                             <optgroup label="Metro">
-                                <option value="L1">L1 - Fondo / Hospitalet</option>
-                                <option value="L2">L2 - Paral·lel / Badalona</option>
-                                <option value="L3">L3 - Zona Universitària / Trinitat Nova</option>
-                                <option value="L4">L4 - Trinitat Nova / La Pau</option>
-                                <option value="L5">L5 - Cornellà / Vall d'Hebron</option>
-                                <option value="L9N">L9 Nord</option>
-                                <option value="L9S">L9 Sud</option>
-                                <option value="L10N">L10 Nord</option>
-                                <option value="L10S">L10 Sud</option>
-                                <option value="L11">L11 - Trinitat Nova / Can Cuiàs</option>
+                                <option value="L1">L1</option><option value="L2">L2</option>
+                                <option value="L3">L3</option><option value="L4">L4</option>
+                                <option value="L5">L5</option><option value="L9N">L9N</option>
+                                <option value="L9S">L9S</option><option value="L10N">L10N</option>
+                                <option value="L10S">L10S</option><option value="L11">L11</option>
                             </optgroup>
-                            <optgroup label="Bus">
-                                <option value="Bus">Autobús (especifica a notes)</option>
-                            </optgroup>
-                            <optgroup label="Tram">
-                                <option value="Tram">Tramvia</option>
+                            <optgroup label="Altres">
+                                <option value="Bus">Bus</option><option value="Tram">Tram</option>
                             </optgroup>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="trobat-estacio">Estació / Parada</label>
+                        <label for="trobat-estacio">Estació</label>
                         <input type="text" id="trobat-estacio" placeholder="Ex: Passeig de Gràcia">
                     </div>
                 </div>
-
                 <div class="form-row">
                     <div class="form-group">
                         <label for="trobat-data">Data *</label>
@@ -91,11 +81,10 @@
                         <input type="time" id="trobat-hora">
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label for="trobat-categoria">Categoria *</label>
                     <select id="trobat-categoria" required>
-                        <option value="">Selecciona categoria...</option>
+                        <option value="">Selecciona...</option>
                         <option value="mobil">📱 Mòbil / Tauleta</option>
                         <option value="cartera">👛 Cartera / Documentació</option>
                         <option value="claus">🔑 Claus</option>
@@ -108,36 +97,28 @@
                         <option value="altres">📦 Altres</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label for="trobat-descripcio">Descripció detallada</label>
-                    <textarea id="trobat-descripcio" rows="3" placeholder="Color, marca, estat, algun detall identificatiu..."></textarea>
+                    <textarea id="trobat-descripcio" rows="3" placeholder="Color, marca, estat, detalls identificatius..."></textarea>
                 </div>
-
                 <div class="form-group">
                     <label for="trobat-contacte">El teu contacte (email o telèfon) *</label>
                     <input type="text" id="trobat-contacte" placeholder="Ex: joan@email.com o 612345678" required>
                 </div>
-
                 <div class="form-group">
                     <label for="trobat-nom">El teu nom</label>
                     <input type="text" id="trobat-nom" placeholder="Ex: Joan García">
                 </div>
-
                 <button type="submit" class="btn-submit trobat-btn">
-                    <span class="btn-icon">📦</span>
-                    Registrar objecte trobat
+                    <span class="btn-icon">📦</span> Enviar report d'objecte trobat
                 </button>
             </form>
 
-            <!-- Registres recents -->
+            <!-- Llista d'objectes trobats -->
             <div class="recent-section">
-                <h3>📋 Últims objectes trobats</h3>
+                <h3>📋 Objectes trobats recentment</h3>
                 <div class="items-list" id="llistaTrobats">
-                    <div class="empty-state">
-                        <span>🔍</span>
-                        <p>No hi ha objectes registrats encara</p>
-                    </div>
+                    <div class="loading-state"><div class="spinner"></div><p>Carregant...</p></div>
                 </div>
             </div>
         </section>
@@ -145,9 +126,9 @@
         <!-- ==================== TAB: PERDUT ==================== -->
         <section class="tab-panel" id="panelPerdut">
             <div class="panel-header">
-                <div class="panel-icon perdut-icon">🔎</div>
+                <div class="panel-icon">🔎</div>
                 <h2>He perdut un objecte</h2>
-                <p>Registra el teu objecte perdut i t'avisarem si algú el troba.</p>
+                <p>Registra l'objecte perdut i mira si algú l'ha trobat.</p>
             </div>
 
             <form class="form-card" id="formPerdut" novalidate>
@@ -155,38 +136,28 @@
                     <label for="perdut-que">Què has perdut? *</label>
                     <input type="text" id="perdut-que" placeholder="Ex: Cartera marró amb documentació..." required>
                 </div>
-
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="perdut-linia">Línia (si ho recordes)</label>
+                        <label for="perdut-linia">Línia</label>
                         <select id="perdut-linia">
                             <option value="">Selecciona...</option>
                             <optgroup label="Metro">
-                                <option value="L1">L1 - Fondo / Hospitalet</option>
-                                <option value="L2">L2 - Paral·lel / Badalona</option>
-                                <option value="L3">L3 - Zona Universitària / Trinitat Nova</option>
-                                <option value="L4">L4 - Trinitat Nova / La Pau</option>
-                                <option value="L5">L5 - Cornellà / Vall d'Hebron</option>
-                                <option value="L9N">L9 Nord</option>
-                                <option value="L9S">L9 Sud</option>
-                                <option value="L10N">L10 Nord</option>
-                                <option value="L10S">L10 Sud</option>
-                                <option value="L11">L11 - Trinitat Nova / Can Cuiàs</option>
+                                <option value="L1">L1</option><option value="L2">L2</option>
+                                <option value="L3">L3</option><option value="L4">L4</option>
+                                <option value="L5">L5</option><option value="L9N">L9N</option>
+                                <option value="L9S">L9S</option><option value="L10N">L10N</option>
+                                <option value="L10S">L10S</option><option value="L11">L11</option>
                             </optgroup>
-                            <optgroup label="Bus">
-                                <option value="Bus">Autobús (especifica a notes)</option>
-                            </optgroup>
-                            <optgroup label="Tram">
-                                <option value="Tram">Tramvia</option>
+                            <optgroup label="Altres">
+                                <option value="Bus">Bus</option><option value="Tram">Tram</option>
                             </optgroup>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="perdut-estacio">Estació / Parada</label>
+                        <label for="perdut-estacio">Estació</label>
                         <input type="text" id="perdut-estacio" placeholder="Ex: Diagonal">
                     </div>
                 </div>
-
                 <div class="form-row">
                     <div class="form-group">
                         <label for="perdut-data">Data de pèrdua *</label>
@@ -197,11 +168,10 @@
                         <input type="time" id="perdut-hora">
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label for="perdut-categoria">Categoria *</label>
                     <select id="perdut-categoria" required>
-                        <option value="">Selecciona categoria...</option>
+                        <option value="">Selecciona...</option>
                         <option value="mobil">📱 Mòbil / Tauleta</option>
                         <option value="cartera">👛 Cartera / Documentació</option>
                         <option value="claus">🔑 Claus</option>
@@ -214,36 +184,27 @@
                         <option value="altres">📦 Altres</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label for="perdut-descripcio">Descripció detallada</label>
-                    <textarea id="perdut-descripcio" rows="3" placeholder="Color, marca, mida, algun detall que ajudi a identificar-lo..."></textarea>
+                    <textarea id="perdut-descripcio" rows="3" placeholder="Color, marca, mida, detalls identificatius..."></textarea>
                 </div>
-
                 <div class="form-group">
                     <label for="perdut-contacte">El teu contacte (email o telèfon) *</label>
                     <input type="text" id="perdut-contacte" placeholder="Ex: maria@email.com o 698765432" required>
                 </div>
-
                 <div class="form-group">
                     <label for="perdut-nom">El teu nom</label>
                     <input type="text" id="perdut-nom" placeholder="Ex: Maria López">
                 </div>
-
                 <button type="submit" class="btn-submit perdut-btn">
-                    <span class="btn-icon">🔎</span>
-                    Registrar objecte perdut
+                    <span class="btn-icon">🔎</span> Enviar report d'objecte perdut
                 </button>
             </form>
 
-            <!-- Registres recents -->
             <div class="recent-section">
-                <h3>📋 Últims objectes perduts</h3>
+                <h3>📋 Objectes perduts recentment</h3>
                 <div class="items-list" id="llistaPerduts">
-                    <div class="empty-state">
-                        <span>🔍</span>
-                        <p>No hi ha objectes registrats encara</p>
-                    </div>
+                    <div class="loading-state"><div class="spinner"></div><p>Carregant...</p></div>
                 </div>
             </div>
         </section>
@@ -251,12 +212,11 @@
         <!-- ==================== TAB: MATCHES ==================== -->
         <section class="tab-panel" id="panelMatches">
             <div class="panel-header">
-                <div class="panel-icon match-icon">🤝</div>
+                <div class="panel-icon">🤝</div>
                 <h2>Seguiment de matches</h2>
-                <p>Consulta les coincidències entre objectes trobats i perduts.</p>
+                <p>Coincidències entre objectes trobats i perduts.</p>
             </div>
 
-            <!-- Filtres de matches -->
             <div class="match-filters">
                 <button class="filter-btn active" data-filter="tots">Tots</button>
                 <button class="filter-btn" data-filter="pendent">⏳ Pendents</button>
@@ -265,37 +225,22 @@
             </div>
 
             <div class="matches-list" id="llistaMatches">
-                <div class="empty-state">
-                    <span>🤝</span>
-                    <p>El sistema de match automàtic s'activarà properament.</p>
-                    <p class="hint">Quan es detectin coincidències entre objectes trobats i perduts, apareixeran aquí.</p>
-                </div>
+                <div class="loading-state"><div class="spinner"></div><p>Carregant...</p></div>
             </div>
 
-            <!-- Info futura -->
             <div class="info-card">
                 <div class="info-icon">ℹ️</div>
                 <div class="info-text">
-                    <h4>Com funciona el matching?</h4>
-                    <p>El sistema compara automàticament els objectes trobats amb els perduts basant-se en la categoria, línia, estació i dates. Quan hi ha una coincidència potencial, es crea un <strong>match pendent</strong> que es pot confirmar o descartar.</p>
+                    <h4>Com funciona?</h4>
+                    <p>Quan es detecta una coincidència entre un objecte trobat i un perdut, es crea un <strong>match</strong>.</p>
                     <div class="status-legend">
-                        <div class="legend-item">
-                            <span class="legend-dot pendent"></span>
-                            <span>Pendent: Coincidència potencial detectada</span>
-                        </div>
-                        <div class="legend-item">
-                            <span class="legend-dot confirmat"></span>
-                            <span>Confirmat: Les dues parts han validat el match</span>
-                        </div>
-                        <div class="legend-item">
-                            <span class="legend-dot tancat"></span>
-                            <span>Tancat: Objecte retornat amb èxit</span>
-                        </div>
+                        <div class="legend-item"><span class="legend-dot pendent"></span>Pendent: coincidència potencial</div>
+                        <div class="legend-item"><span class="legend-dot confirmat"></span>Confirmat: validat per ambdues parts</div>
+                        <div class="legend-item"><span class="legend-dot tancat"></span>Tancat: objecte retornat ✓</div>
                     </div>
                 </div>
             </div>
         </section>
-
     </main>
 
     <!-- Bottom Navigation -->
@@ -315,15 +260,34 @@
         </button>
     </nav>
 
-    <!-- Toast notification -->
-    <div class="toast" id="toast">
-        <span class="toast-icon"></span>
-        <span class="toast-msg"></span>
+    <!-- Modal compartir -->
+    <div class="modal-overlay" id="shareModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modalTitle">✅ Report enviat!</h3>
+                <button class="modal-close" id="modalClose">✕</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-subtitle">Comparteix aquest report perquè el gestionem:</p>
+                <div class="share-preview" id="sharePreview"></div>
+                <div class="share-actions">
+                    <button class="share-btn whatsapp" id="btnWhatsapp">
+                        <span>💬</span> WhatsApp
+                    </button>
+                    <button class="share-btn email" id="btnEmail">
+                        <span>📧</span> Email
+                    </button>
+                    <button class="share-btn copy" id="btnCopy">
+                        <span>📋</span> Copiar
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <!-- Toast -->
+    <div class="toast" id="toast"><span class="toast-msg"></span></div>
+
     <script src="app.js"></script>
 </body>
 </html>

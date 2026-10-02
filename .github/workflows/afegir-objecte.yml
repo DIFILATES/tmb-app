@@ -1,0 +1,112 @@
+name: "\U0001F4E6 Afegir Objecte"
+
+on:
+  workflow_dispatch:
+    inputs:
+      tipus:
+        description: "Tipus d'objecte"
+        required: true
+        type: choice
+        options:
+          - trobat
+          - perdut
+      que:
+        description: "Descripció curta de l'objecte"
+        required: true
+        type: string
+      categoria:
+        description: "Categoria"
+        required: true
+        type: choice
+        options:
+          - mobil
+          - cartera
+          - claus
+          - roba
+          - bossa
+          - auriculars
+          - paraigua
+          - joguina
+          - llibre
+          - altres
+      linia:
+        description: "Línia de transport (L1, L2, L3, L4, L5, L9N, L9S, L10N, L10S, L11, Bus, Tram)"
+        required: false
+        type: string
+      estacio:
+        description: "Estació o parada"
+        required: false
+        type: string
+      data_objecte:
+        description: "Data (YYYY-MM-DD). Deixar buit = avui"
+        required: false
+        type: string
+      hora:
+        description: "Hora aproximada (HH:MM)"
+        required: false
+        type: string
+      descripcio:
+        description: "Descripció detallada"
+        required: false
+        type: string
+      contacte:
+        description: "Contacte (email o telèfon)"
+        required: false
+        type: string
+      nom:
+        description: "Nom de qui reporta"
+        required: false
+        type: string
+        default: "Agent TMB"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  afegir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Afegir objecte a db.json
+        env:
+          ACTION: afegir
+          TIPUS: ${{ inputs.tipus }}
+          QUE: ${{ inputs.que }}
+          CATEGORIA: ${{ inputs.categoria }}
+          LINIA: ${{ inputs.linia }}
+          ESTACIO: ${{ inputs.estacio }}
+          DATA_OBJECTE: ${{ inputs.data_objecte }}
+          HORA: ${{ inputs.hora }}
+          DESCRIPCIO: ${{ inputs.descripcio }}
+          CONTACTE: ${{ inputs.contacte }}
+          NOM: ${{ inputs.nom }}
+        run: python scripts/update_db.py
+
+      - name: Commit i push
+        run: |
+          git config user.name "TMB Bot"
+          git config user.email "bot@tmb.cat"
+          git add data/db.json
+          git diff --cached --quiet && echo "Sense canvis" && exit 0
+          git commit -m "📦 ${{ inputs.tipus }}: ${{ inputs.que }}"
+          git push
+
+  deploy:
+    needs: afegir
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      - id: deployment
+        uses: actions/deploy-pages@v4

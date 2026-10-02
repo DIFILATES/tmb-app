@@ -1,0 +1,154 @@
+{
+  "meta": {
+    "lastUpdated": "2026-10-02T14:30:00+02:00",
+    "contactEmail": "objectesperduts@tmb.cat"
+  },
+  "trobats": [
+    {
+      "id": "T001",
+      "que": "Mòbil Samsung Galaxy S24 negre",
+      "categoria": "mobil",
+      "linia": "L3",
+      "estacio": "Passeig de Gràcia",
+      "data": "2026-09-30",
+      "hora": "08:30",
+      "descripcio": "Trobat al seient del vagó, direcció Trinitat Nova. Pantalla intacta, funda transparent.",
+      "contacte": "agent.garcia@tmb.cat",
+      "nom": "Agent García",
+      "status": "disponible",
+      "createdAt": "2026-09-30T10:15:00+02:00"
+    },
+    {
+      "id": "T002",
+      "que": "Paraigua blau plegable",
+      "categoria": "paraigua",
+      "linia": "L1",
+      "estacio": "Universitat",
+      "data": "2026-10-01",
+      "hora": "17:15",
+      "descripcio": "Paraigua automàtic blau marí, marca Knirps. Deixat al portaequipatges del vagó.",
+      "contacte": "info@tmb.cat",
+      "nom": "Oficina TMB Universitat",
+      "status": "disponible",
+      "createdAt": "2026-10-01T18:00:00+02:00"
+    },
+    {
+      "id": "T003",
+      "que": "Claus amb clauer del FC Barcelona",
+      "categoria": "claus",
+      "linia": "L5",
+      "estacio": "Sagrada Família",
+      "data": "2026-10-01",
+      "hora": "12:00",
+      "descripcio": "Joc de 4 claus amb clauer del Barça i targeta de fidelització Mercadona.",
+      "contacte": "agent.lopez@tmb.cat",
+      "nom": "Agent López",
+      "status": "disponible",
+      "createdAt": "2026-10-01T13:30:00+02:00"
+    },
+    {
+      "id": "T004",
+      "que": "Auriculars Apple AirPods blancs",
+      "categoria": "auriculars",
+      "linia": "L2",
+      "estacio": "Paral·lel",
+      "data": "2026-10-02",
+      "hora": "09:45",
+      "descripcio": "Estoig blanc d'AirPods Pro, trobat a terra a l'andana direcció Badalona.",
+      "contacte": "agent.martinez@tmb.cat",
+      "nom": "Agent Martínez",
+      "status": "disponible",
+      "createdAt": "2026-10-02T10:30:00+02:00"
+    },
+    {
+      "id": "T005",
+      "que": "Motxilla grisa Eastpak",
+      "categoria": "bossa",
+      "linia": "Bus",
+      "estacio": "",
+      "data": "2026-09-29",
+      "hora": "14:00",
+      "descripcio": "Motxilla gris amb ratlles reflectants. Conté llibreta i estoig escolar. Bus V15 direcció Pg. Marítim.",
+      "contacte": "info@tmb.cat",
+      "nom": "Conductor Bus V15",
+      "status": "disponible",
+      "createdAt": "2026-09-29T15:45:00+02:00"
+    }
+  ],
+  "perduts": [
+    {
+      "id": "P001",
+      "que": "Mòbil iPhone 15 amb funda vermella",
+      "categoria": "mobil",
+      "linia": "L3",
+      "estacio": "Diagonal",
+      "data": "2026-09-30",
+      "hora": "08:00",
+      "descripcio": "iPhone 15 blanc amb funda de silicona vermella. Protector de pantalla. Última vegada vist al vagó direcció Zona Universitària.",
+      "contacte": "maria.soler@gmail.com",
+      "nom": "Maria Soler",
+      "status": "actiu",
+      "createdAt": "2026-09-30T09:30:00+02:00"
+    },
+    {
+      "id": "P002",
+      "que": "Cartera marró amb documentació DNI",
+      "categoria": "cartera",
+      "linia": "L1",
+      "estacio": "Arc de Triomf",
+      "data": "2026-10-01",
+      "hora": "18:30",
+      "descripcio": "Cartera de pell marró marca Loewe. Conté DNI, targeta sanitària, 2 targetes bancàries i ~40€ en efectiu.",
+      "contacte": "jordi.puig@hotmail.com",
+      "nom": "Jordi Puig",
+      "status": "actiu",
+      "createdAt": "2026-10-01T19:45:00+02:00"
+    },
+    {
+      "id": "P003",
+      "que": "Ulleres de sol Ray-Ban negres",
+      "categoria": "roba",
+      "linia": "L4",
+      "estacio": "Barceloneta",
+      "data": "2026-09-28",
+      "hora": "16:00",
+      "descripcio": "Ray-Ban Wayfarer negres amb vidres degradats. Estoig dur negre.",
+      "contacte": "ana.vidal@gmail.com",
+      "nom": "Ana Vidal",
+      "status": "actiu",
+      "createdAt": "2026-09-28T17:20:00+02:00"
+    },
+    {
+      "id": "P004",
+      "que": "Bossa de tela amb llibres universitaris",
+      "categoria": "bossa",
+      "linia": "L5",
+      "estacio": "Hospital Clínic",
+      "data": "2026-10-02",
+      "hora": "11:00",
+      "descripcio": "Bossa tote bag blanca estampada 'UB'. Conté 3 llibres de Dret i una llibreta d'apunts.",
+      "contacte": "615234567",
+      "nom": "Pau Ferrer",
+      "status": "actiu",
+      "createdAt": "2026-10-02T12:00:00+02:00"
+    }
+  ],
+  "matches": [
+    {
+      "id": "M001",
+      "trobatId": "T001",
+      "perdutId": "P001",
+      "status": "pendent",
+      "createdAt": "2026-10-02T09:00:00+02:00",
+      "notes": "Ambdós mòbils a la L3, dates coincidents (30/09). Verificar model i funda."
+    },
+    {
+      "id": "M002",
+      "trobatId": "T005",
+      "perdutId": "P004",
+      "status": "confirmat",
+      "createdAt": "2026-10-02T13:00:00+02:00",
+      "notes": "La propietària ha confirmat que és la seva bossa. Pendent de recollida a oficina TMB Diagonal."
+    }
+  ]
+}

@@ -1,132 +1,63 @@
 /* ============================================
-   TMB Objectes Perduts - App Logic
-   Firebase Realtime Database per sincronització
+   TMB Objectes Perduts - App Logic (JSON/CLI Version)
    ============================================ */
 
-// Firebase config - base de dades pública per al prototip
-const firebaseConfig = {
-    apiKey: "AIzaSyDummyKeyForPrototype",
-    authDomain: "tmb-objectes-perduts.firebaseapp.com",
-    databaseURL: "https://tmb-objectes-perduts-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "tmb-objectes-perduts",
-    storageBucket: "tmb-objectes-perduts.appspot.com",
-    messagingSenderId: "000000000000",
-    appId: "1:000000000000:web:0000000000000000"
-};
-
-// ============================================
-// STATE
-// ============================================
-let db = null;
-let isOnline = false;
-const MAX_RECENT_ITEMS = 20;
-
-// Local storage fallback
-const STORAGE_KEYS = {
-    trobats: 'tmb_trobats',
-    perduts: 'tmb_perduts',
-    matches: 'tmb_matches'
-};
+const DB_URL = 'data/db.json';
 
 // Category emoji map
 const CATEGORY_EMOJIS = {
-    mobil: '📱',
-    cartera: '👛',
-    claus: '🔑',
-    roba: '🧥',
-    bossa: '👜',
-    auriculars: '🎧',
-    paraigua: '☂️',
-    joguina: '🧸',
-    llibre: '📚',
-    altres: '📦'
+    mobil: '📱', cartera: '👛', claus: '🔑', roba: '🧥', bossa: '👜',
+    auriculars: '🎧', paraigua: '☂️', joguina: '🧸', llibre: '📚', altres: '📦'
 };
 
-// ============================================
-// INIT
-// ============================================
+// State
+let appData = { trobats: [], perduts: [], matches: [] };
+
 document.addEventListener('DOMContentLoaded', () => {
-    initFirebase();
     initNavigation();
     initForms();
     initMatchFilters();
     setDefaultDates();
+    initModals();
+    loadData();
 });
 
-function initFirebase() {
+// ============================================
+// DATA LOADING
+// ============================================
+async function loadData() {
+    updateBadge('Carregant...', false);
     try {
-        firebase.initializeApp(firebaseConfig);
-        db = firebase.database();
+        // Add timestamp to prevent caching
+        const response = await fetch(`${DB_URL}?t=${new Date().getTime()}`);
+        if (!response.ok) throw new Error('Network response was not ok');
         
-        // Monitor connection
-        const connRef = db.ref('.info/connected');
-        connRef.on('value', (snap) => {
-            updateConnectionStatus(snap.val() === true);
-        });
-
-        // Listen for data changes
-        listenForData('trobats', renderTrobats);
-        listenForData('perduts', renderPerduts);
-        listenForData('matches', renderMatches);
+        appData = await response.json();
         
-    } catch (e) {
-        console.warn('Firebase init failed, using local storage:', e);
-        updateConnectionStatus(false);
-        loadFromLocalStorage();
+        renderTrobats(appData.trobats);
+        renderPerduts(appData.perduts);
+        renderMatches(appData.matches);
+        
+        const date = new Date(appData.meta.lastUpdated);
+        updateBadge(`Actualitzat: ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`, true);
+    } catch (error) {
+        console.error('Error loading data:', error);
+        updateBadge('Error de connexió', false, true);
+        
+        document.getElementById('llistaTrobats').innerHTML = '<div class="empty-state"><p>No s\'han pogut carregar les dades.</p></div>';
+        document.getElementById('llistaPerduts').innerHTML = '<div class="empty-state"><p>No s\'han pogut carregar les dades.</p></div>';
+        document.getElementById('llistaMatches').innerHTML = '<div class="empty-state"><p>No s\'han pogut carregar les dades.</p></div>';
     }
 }
 
-function updateConnectionStatus(online) {
-    isOnline = online;
-    const statusEl = document.getElementById('connectionStatus');
-    const dot = statusEl.querySelector('.status-dot');
-    const text = statusEl.querySelector('.status-text');
+function updateBadge(text, isOk, isError = false) {
+    const badge = document.getElementById('dataBadge');
+    const dot = badge.querySelector('.badge-dot');
+    badge.querySelector('.badge-text').textContent = text;
     
-    if (online) {
-        dot.className = 'status-dot online';
-        text.textContent = 'En línia';
-    } else {
-        dot.className = 'status-dot offline';
-        text.textContent = 'Fora de línia';
-        // Load from local storage as fallback
-        loadFromLocalStorage();
-    }
-}
-
-function listenForData(collection, renderFn) {
-    if (!db) return;
-    
-    const ref = db.ref(collection);
-    ref.orderByChild('timestamp').limitToLast(MAX_RECENT_ITEMS).on('value', (snapshot) => {
-        const items = [];
-        snapshot.forEach((child) => {
-            items.push({ id: child.key, ...child.val() });
-        });
-        items.reverse(); // Most recent first
-        
-        // Save to local storage
-        localStorage.setItem(STORAGE_KEYS[collection], JSON.stringify(items));
-        
-        renderFn(items);
-    }, (error) => {
-        console.warn(`Error listening to ${collection}:`, error);
-        loadCollectionFromStorage(collection, renderFn);
-    });
-}
-
-function loadFromLocalStorage() {
-    loadCollectionFromStorage('trobats', renderTrobats);
-    loadCollectionFromStorage('perduts', renderPerduts);
-    loadCollectionFromStorage('matches', renderMatches);
-}
-
-function loadCollectionFromStorage(collection, renderFn) {
-    try {
-        const data = JSON.parse(localStorage.getItem(STORAGE_KEYS[collection]) || '[]');
-        renderFn(data);
-    } catch (e) {
-        renderFn([]);
-    }
+    dot.className = 'badge-dot';
+    if (isOk) dot.classList.add('ok');
+    if (isError) dot.classList.add('err');
 }
 
 // ============================================
@@ -134,28 +65,24 @@ function loadCollectionFromStorage(collection, renderFn) {
 // ============================================
 function initNavigation() {
     const navItems = document.querySelectorAll('.nav-item');
-    
     navItems.forEach(item => {
         item.addEventListener('click', () => {
             const tabId = item.dataset.tab;
-            
-            // Update nav
             navItems.forEach(n => n.classList.remove('active'));
             item.classList.add('active');
             
-            // Update panels
             document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            
-            // Scroll to top
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     });
 }
 
 // ============================================
-// FORMS
+// FORMS & MODAL
 // ============================================
+let currentCommand = '';
+
 function initForms() {
     document.getElementById('formTrobat').addEventListener('submit', (e) => {
         e.preventDefault();
@@ -202,62 +129,42 @@ function handleFormSubmit(type) {
         showToast('⚠️ Omple tots els camps obligatoris', 'error');
         return;
     }
+
+    // Generate gh workflow command
+    currentCommand = `gh workflow run afegir-objecte.yml -f tipus="${type}" -f que="${que.replace(/"/g, '\\"')}" -f categoria="${categoria}" -f linia="${linia}" -f estacio="${estacio}" -f data_objecte="${data}" -f hora="${hora}" -f descripcio="${descripcio.replace(/"/g, '\\"')}" -f contacte="${contacte}" -f nom="${nom}"`;
     
-    // Build item
-    const item = {
-        que,
-        linia: linia || null,
-        estacio: estacio || null,
-        data,
-        hora: hora || null,
-        categoria,
-        descripcio: descripcio || null,
-        contacte,
-        nom: nom || 'Anònim',
-        timestamp: Date.now(),
-        createdAt: new Date().toISOString(),
-        tipus: type
-    };
+    // Show Modal
+    const preview = document.getElementById('sharePreview');
+    preview.textContent = currentCommand;
+    document.getElementById('shareModal').classList.add('show');
     
-    // Save
-    saveItem(type === 'trobat' ? 'trobats' : 'perduts', item);
-    
-    // Reset form
+    // Reset
     form.reset();
     setDefaultDates();
+}
+
+function initModals() {
+    const modal = document.getElementById('shareModal');
     
-    // Feedback
-    const msg = type === 'trobat' 
-        ? '✅ Objecte trobat registrat correctament!' 
-        : '✅ Objecte perdut registrat correctament!';
-    showToast(msg, 'success');
-}
-
-function saveItem(collection, item) {
-    if (db && isOnline) {
-        db.ref(collection).push(item).catch(err => {
-            console.warn('Firebase save failed:', err);
-            saveToLocalOnly(collection, item);
+    document.getElementById('modalClose').addEventListener('click', () => {
+        modal.classList.remove('show');
+    });
+    
+    document.getElementById('btnCopy').addEventListener('click', () => {
+        navigator.clipboard.writeText(currentCommand).then(() => {
+            showToast('📋 Comanda copiada!', 'success');
         });
-    } else {
-        saveToLocalOnly(collection, item);
-    }
-}
-
-function saveToLocalOnly(collection, item) {
-    try {
-        const items = JSON.parse(localStorage.getItem(STORAGE_KEYS[collection]) || '[]');
-        item.id = 'local_' + Date.now();
-        items.unshift(item);
-        if (items.length > MAX_RECENT_ITEMS) items.pop();
-        localStorage.setItem(STORAGE_KEYS[collection], JSON.stringify(items));
-        
-        // Re-render
-        if (collection === 'trobats') renderTrobats(items);
-        else if (collection === 'perduts') renderPerduts(items);
-    } catch (e) {
-        console.error('Local save failed:', e);
-    }
+    });
+    
+    document.getElementById('btnWhatsapp').addEventListener('click', () => {
+        const text = encodeURIComponent(`Hola! Per afegir l'objecte a la base de dades, executa aquesta comanda a la terminal:\n\n${currentCommand}`);
+        window.open(`https://wa.me/?text=${text}`, '_blank');
+    });
+    
+    document.getElementById('btnEmail').addEventListener('click', () => {
+        const body = encodeURIComponent(`Hola,\n\nPer afegir l'objecte a la base de dades de TMB, executa aquesta comanda a la terminal on tinguis configurat gh:\n\n${currentCommand}`);
+        window.open(`mailto:?subject=Nou report objecte TMB&body=${body}`, '_blank');
+    });
 }
 
 // ============================================
@@ -265,69 +172,83 @@ function saveToLocalOnly(collection, item) {
 // ============================================
 function renderTrobats(items) {
     const container = document.getElementById('llistaTrobats');
-    
     if (!items || items.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <span>📦</span>
-                <p>No hi ha objectes trobats registrats</p>
-            </div>`;
+        container.innerHTML = `<div class="empty-state"><span>📦</span><p>No hi ha objectes trobats</p></div>`;
         return;
     }
-    
     container.innerHTML = items.map(item => renderItemCard(item, 'trobat')).join('');
 }
 
 function renderPerduts(items) {
     const container = document.getElementById('llistaPerduts');
-    
     if (!items || items.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <span>🔎</span>
-                <p>No hi ha objectes perduts registrats</p>
-            </div>`;
+        container.innerHTML = `<div class="empty-state"><span>🔎</span><p>No hi ha objectes perduts</p></div>`;
         return;
     }
-    
     container.innerHTML = items.map(item => renderItemCard(item, 'perdut')).join('');
 }
 
 function renderItemCard(item, type) {
     const emoji = CATEGORY_EMOJIS[item.categoria] || '📦';
-    const timeAgo = getTimeAgo(item.timestamp);
-    const liniaTag = item.linia ? `<span>🚇 ${item.linia}</span>` : '';
-    const estacioTag = item.estacio ? `<span>📍 ${item.estacio}</span>` : '';
+    const liniaTag = item.linia ? `<span class="linia-tag linia-${item.linia}">${item.linia}</span>` : '';
+    const estacioTag = item.estacio ? `<span>📍 ${escapeHtml(item.estacio)}</span>` : '';
+    const statusClass = item.status === 'disponible' ? 'status-disponible' : item.status === 'actiu' ? 'status-actiu' : 'status-retornat';
     
     return `
         <div class="item-card ${type}-card">
             <div class="item-emoji">${emoji}</div>
             <div class="item-info">
-                <div class="item-title">${escapeHtml(item.que)}</div>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div class="item-title">${escapeHtml(item.que)}</div>
+                    <span style="font-size:10px; color:#999; margin-left:8px;">${item.id}</span>
+                </div>
+                ${item.descripcio ? `<div class="item-desc">${escapeHtml(item.descripcio)}</div>` : ''}
                 <div class="item-meta">
                     ${liniaTag}
                     ${estacioTag}
                     <span>📅 ${formatDate(item.data)}</span>
                 </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                     <div class="item-status ${statusClass}">${item.status.toUpperCase()}</div>
+                     <div style="font-size:10px; color:#888;">${escapeHtml(item.nom)}</div>
+                </div>
             </div>
-            <div class="item-time">${timeAgo}</div>
         </div>`;
 }
 
 function renderMatches(items) {
     const container = document.getElementById('llistaMatches');
-    
     if (!items || items.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <span>🤝</span>
-                <p>El sistema de match automàtic s'activarà properament.</p>
-                <p class="hint">Quan es detectin coincidències entre objectes trobats i perduts, apareixeran aquí.</p>
-            </div>`;
+        container.innerHTML = `<div class="empty-state"><span>🤝</span><p>No hi ha matches actualment</p></div>`;
         return;
     }
     
-    container.innerHTML = items.map(match => renderMatchCard(match)).join('');
+    container.innerHTML = items.map(match => {
+        const trobat = appData.trobats.find(t => t.id === match.trobatId) || {que: 'Desconegut'};
+        const perdut = appData.perduts.find(p => p.id === match.perdutId) || {que: 'Desconegut'};
+        
+        return `
+        <div class="match-card" data-status="${match.status}">
+            <div class="match-header">
+                <span class="match-id">Match ${match.id}</span>
+                <span class="match-status ${match.status}">${getStatusLabel(match.status)}</span>
+            </div>
+            <div class="match-pair">
+                <div class="match-side trobat-side">
+                    <div class="side-label">📦 Trobat (${match.trobatId})</div>
+                    <div class="side-title">${escapeHtml(trobat.que)}</div>
+                    <div class="side-detail">${trobat.data || ''} ${trobat.linia ? '- ' + trobat.linia : ''}</div>
+                </div>
+                <div class="match-arrow">⇄</div>
+                <div class="match-side perdut-side">
+                    <div class="side-label">🔎 Perdut (${match.perdutId})</div>
+                    <div class="side-title">${escapeHtml(perdut.que)}</div>
+                    <div class="side-detail">${perdut.data || ''} ${perdut.linia ? '- ' + perdut.linia : ''}</div>
+                </div>
+            </div>
+            ${match.notes ? `<div class="match-notes"><strong>Notes:</strong> ${escapeHtml(match.notes)}</div>` : ''}
+        </div>`;
+    }).join('');
     
     // Update badge
     const pendents = items.filter(m => m.status === 'pendent').length;
@@ -340,35 +261,11 @@ function renderMatches(items) {
     }
 }
 
-function renderMatchCard(match) {
-    return `
-        <div class="match-card" data-status="${match.status || 'pendent'}">
-            <div class="match-header">
-                <span style="font-size:13px;font-weight:600;">Match #${match.id?.slice(-4) || '----'}</span>
-                <span class="match-status ${match.status || 'pendent'}">${getStatusLabel(match.status)}</span>
-            </div>
-            <div class="match-pair">
-                <div class="match-side trobat-side">
-                    <div class="side-label">📦 Trobat</div>
-                    <div class="side-title">${escapeHtml(match.trobat?.que || '—')}</div>
-                    <div style="font-size:11px;color:#666;">${match.trobat?.data || ''}</div>
-                </div>
-                <div class="match-arrow">⇄</div>
-                <div class="match-side perdut-side">
-                    <div class="side-label">🔎 Perdut</div>
-                    <div class="side-title">${escapeHtml(match.perdut?.que || '—')}</div>
-                    <div style="font-size:11px;color:#666;">${match.perdut?.data || ''}</div>
-                </div>
-            </div>
-        </div>`;
-}
-
 // ============================================
 // MATCH FILTERS
 // ============================================
 function initMatchFilters() {
     const filterBtns = document.querySelectorAll('.filter-btn');
-    
     filterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             filterBtns.forEach(b => b.classList.remove('active'));
@@ -378,11 +275,8 @@ function initMatchFilters() {
             const cards = document.querySelectorAll('.match-card');
             
             cards.forEach(card => {
-                if (filter === 'tots') {
-                    card.style.display = '';
-                } else {
-                    card.style.display = card.dataset.status === filter ? '' : 'none';
-                }
+                if (filter === 'tots') card.style.display = '';
+                else card.style.display = card.dataset.status === filter ? '' : 'none';
             });
         });
     });
@@ -391,62 +285,32 @@ function initMatchFilters() {
 // ============================================
 // UTILS
 // ============================================
-function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-function markError(id) {
-    document.getElementById(id).classList.add('error');
-}
-
-function clearErrors(form) {
-    form.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
-}
-
+function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+function markError(id) { document.getElementById(id).classList.add('error'); }
+function clearErrors(form) { form.querySelectorAll('.error').forEach(el => el.classList.remove('error')); }
 function escapeHtml(str) {
     if (!str) return '';
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
 }
-
 function formatDate(dateStr) {
     if (!dateStr) return '';
     const [y, m, d] = dateStr.split('-');
     return `${d}/${m}/${y}`;
 }
-
-function getTimeAgo(timestamp) {
-    if (!timestamp) return '';
-    const now = Date.now();
-    const diff = now - timestamp;
-    const mins = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
-    
-    if (mins < 1) return 'Ara';
-    if (mins < 60) return `${mins}min`;
-    if (hours < 24) return `${hours}h`;
-    if (days < 7) return `${days}d`;
-    return formatDate(new Date(timestamp).toISOString().split('T')[0]);
-}
-
 function getStatusLabel(status) {
     switch (status) {
         case 'pendent': return '⏳ Pendent';
         case 'confirmat': return '✅ Confirmat';
         case 'tancat': return '🔒 Tancat';
-        default: return '⏳ Pendent';
+        default: return status;
     }
 }
-
 function showToast(message, type = '') {
     const toast = document.getElementById('toast');
     toast.className = `toast ${type}`;
     toast.querySelector('.toast-msg').textContent = message;
     toast.classList.add('show');
-    
-    setTimeout(() => {
-        toast.classList.remove('show');
-    }, 3000);
+    setTimeout(() => toast.classList.remove('show'), 3000);
 }
