@@ -12,6 +12,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <!-- Header -->
@@ -28,7 +30,7 @@
             </div>
             <div class="data-badge" id="dataBadge">
                 <span class="badge-dot"></span>
-                <span class="badge-text">Carregant...</span>
+                <span class="badge-text">Connectant...</span>
             </div>
         </div>
     </header>
@@ -114,11 +116,10 @@
                 </button>
             </form>
 
-            <!-- Llista d'objectes trobats -->
             <div class="recent-section">
                 <h3>📋 Objectes trobats recentment</h3>
                 <div class="items-list" id="llistaTrobats">
-                    <div class="loading-state"><div class="spinner"></div><p>Carregant...</p></div>
+                    <div class="loading-state"><div class="spinner"></div><p>Carregant dades...</p></div>
                 </div>
             </div>
         </section>
@@ -204,7 +205,7 @@
             <div class="recent-section">
                 <h3>📋 Objectes perduts recentment</h3>
                 <div class="items-list" id="llistaPerduts">
-                    <div class="loading-state"><div class="spinner"></div><p>Carregant...</p></div>
+                    <div class="loading-state"><div class="spinner"></div><p>Carregant dades...</p></div>
                 </div>
             </div>
         </section>
@@ -225,14 +226,14 @@
             </div>
 
             <div class="matches-list" id="llistaMatches">
-                <div class="loading-state"><div class="spinner"></div><p>Carregant...</p></div>
+                <div class="loading-state"><div class="spinner"></div><p>Carregant dades...</p></div>
             </div>
 
             <div class="info-card">
                 <div class="info-icon">ℹ️</div>
                 <div class="info-text">
                     <h4>Com funciona?</h4>
-                    <p>Quan es detecta una coincidència entre un objecte trobat i un perdut, es crea un <strong>match</strong>.</p>
+                    <p>Quan es detecta una coincidència, es crea un <strong>match</strong> automàticament.</p>
                     <div class="status-legend">
                         <div class="legend-item"><span class="legend-dot pendent"></span>Pendent: coincidència potencial</div>
                         <div class="legend-item"><span class="legend-dot confirmat"></span>Confirmat: validat per ambdues parts</div>
@@ -259,31 +260,6 @@
             <span class="nav-badge" id="matchBadge" style="display:none;">0</span>
         </button>
     </nav>
-
-    <!-- Modal compartir -->
-    <div class="modal-overlay" id="shareModal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3 id="modalTitle">✅ Report enviat!</h3>
-                <button class="modal-close" id="modalClose">✕</button>
-            </div>
-            <div class="modal-body">
-                <p class="modal-subtitle">Comparteix aquest report perquè el gestionem:</p>
-                <div class="share-preview" id="sharePreview"></div>
-                <div class="share-actions">
-                    <button class="share-btn whatsapp" id="btnWhatsapp">
-                        <span>💬</span> WhatsApp
-                    </button>
-                    <button class="share-btn email" id="btnEmail">
-                        <span>📧</span> Email
-                    </button>
-                    <button class="share-btn copy" id="btnCopy">
-                        <span>📋</span> Copiar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Toast -->
     <div class="toast" id="toast"><span class="toast-msg"></span></div>
