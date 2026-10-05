@@ -45,9 +45,9 @@ async function loadAll() {
         if (pRes.error) throw pRes.error;
         if (mRes.error) throw mRes.error;
 
-        allTrobats = tRes.data;
-        allPerduts = pRes.data;
-        allMatches = mRes.data;
+        allTrobats = tRes.data || [];
+        allPerduts = pRes.data || [];
+        allMatches = mRes.data || [];
 
         renderTrobats();
         renderPerduts();
@@ -127,7 +127,6 @@ async function submitForm(tipus) {
     const p = tipus;
     const form = el(`form${cap(tipus)}`);
 
-    // Collect
     const formData = {
         que:        val(`${p}-que`),
         linia:      val(`${p}-linia`),
@@ -140,7 +139,6 @@ async function submitForm(tipus) {
         nom:        val(`${p}-nom`)
     };
 
-    // Validate
     clearErrors(form);
     let ok = true;
     if (!formData.que)       { markErr(`${p}-que`); ok = false; }
@@ -149,7 +147,6 @@ async function submitForm(tipus) {
     if (!formData.contacte)  { markErr(`${p}-contacte`); ok = false; }
     if (!ok) { toast('⚠️ Omple els camps obligatoris','error'); return; }
 
-    // Submit button loading
     const btn = form.querySelector('.btn-submit');
     const origText = btn.innerHTML;
     btn.disabled = true;
@@ -201,7 +198,10 @@ function itemCard(item, tipus) {
         <div class="item-info">
             <div style="display:flex;justify-content:space-between;align-items:flex-start">
                 <div class="item-title">${esc(item.que)}</div>
-                <span style="font-size:10px;color:#aaa;margin-left:6px;flex-shrink:0">#${item.id}</span>
+                <div style="display:flex;align-items:center;gap:6px;">
+                    <span style="font-size:10px;color:#aaa;">#${item.id}</span>
+                    <button onclick="deleteObjecte(${item.id})" title="Eliminar registre" style="background:none;border:none;cursor:pointer;font-size:12px;opacity:0.6;padding:0;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">🗑️</button>
+                </div>
             </div>
             ${item.descripcio ? `<div class="item-desc">${esc(item.descripcio)}</div>` : ''}
             <div class="item-meta">${lTag}${eTag}<span>📅 ${fmtDate(item.data_objecte)}</span></div>
@@ -232,13 +232,13 @@ function renderMatches() {
         const actionsHTML = `
             <div class="match-actions" style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; border-top:1px solid #eee; padding-top:8px;">
                 ${m.status === 'pendent' ? `
-                    <button onclick="updateMatchStatus(${m.id}, 'confirmat')" style="background:#28a745;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">✅ Confirmar</button>
-                    <button onclick="updateMatchStatus(${m.id}, 'tancat')" style="background:#6c757d;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">🔒 Tancar</button>
+                    <button onclick="updateMatchStatus(${m.id}, 'confirmat')" style="background:#28a745;color:#fff;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;">✅ Confirmar</button>
+                    <button onclick="updateMatchStatus(${m.id}, 'tancat')" style="background:#6c757d;color:#fff;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;">🔒 Tancar</button>
                 ` : ''}
                 ${m.status === 'confirmat' ? `
-                    <button onclick="updateMatchStatus(${m.id}, 'tancat')" style="background:#6c757d;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">🔒 Completar / Tancar</button>
+                    <button onclick="updateMatchStatus(${m.id}, 'tancat')" style="background:#6c757d;color:#fff;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;">🔒 Completar / Tancar</button>
                 ` : ''}
-                <button onclick="deleteMatch(${m.id})" style="background:#dc3545;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;margin-left:auto;">🗑️ Esborrar</button>
+                <button onclick="deleteMatch(${m.id})" style="background:#dc3545;color:#fff;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;margin-left:auto;">🗑️ Esborrar</button>
             </div>
         `;
 
@@ -269,6 +269,64 @@ function renderMatches() {
     badge.style.display = pendents > 0 ? 'flex' : 'none';
     badge.textContent = pendents;
 }
+
+// ============================================
+// GESTIÓ I ESBORRAT DE MATCHES I OBJECTES
+// ============================================
+async function updateMatchStatus(id, newStatus) {
+    try {
+        const match = allMatches.find(m => m.id === id);
+        const { error } = await sb.from('matches').update({ status: newStatus }).eq('id', id);
+        if (error) throw error;
+
+        if (newStatus === 'tancat' && match) {
+            if (match.trobat_id) {
+                await sb.from('objectes').update({ status: 'retornat' }).eq('id', match.trobat_id);
+            }
+            if (match.perdut_id) {
+                await sb.from('objectes').update({ status: 'resolt' }).eq('id', match.perdut_id);
+            }
+        }
+
+        toast(`✅ Match #${id} marcat com a ${newStatus}`, 'success');
+        await loadAll();
+    } catch (err) {
+        console.error(err);
+        toast('❌ Error en canviar l\'estat del match', 'error');
+    }
+}
+
+async function deleteMatch(id) {
+    if (!confirm(`Estàs segur que vols eliminar el Match #${id}?`)) return;
+    try {
+        const { error } = await sb.from('matches').delete().eq('id', id);
+        if (error) throw error;
+        toast(`🗑️ Match #${id} eliminat`, 'success');
+        await loadAll();
+    } catch (err) {
+        console.error(err);
+        toast('❌ Error en eliminar el match', 'error');
+    }
+}
+
+async function deleteObjecte(id) {
+    if (!confirm(`Estàs segur que vols eliminar l'objecte #${id}?`)) return;
+    try {
+        const { error } = await sb.from('objectes').delete().eq('id', id);
+        if (error) throw error;
+        toast(`🗑️ Objecte #${id} eliminat`, 'success');
+        await loadAll();
+    } catch (err) {
+        console.error(err);
+        toast('❌ Error en eliminar l\'objecte', 'error');
+    }
+}
+
+window.updateMatchStatus = updateMatchStatus;
+window.deleteMatch = deleteMatch;
+window.deleteObjecte = deleteObjecte;
+
+// ============================================
 // MATCH FILTERS
 // ============================================
 function initMatchFilters() {
@@ -308,6 +366,7 @@ function fmtDate(d) {
 
 function badge(text, state) {
     const b = el('dataBadge');
+    if (!b) return;
     b.querySelector('.badge-text').textContent = text;
     const dot = b.querySelector('.badge-dot');
     dot.className = 'badge-dot';
@@ -321,6 +380,7 @@ function emptyHTML(icon, msg) {
 
 function toast(msg, type) {
     const t = el('toast');
+    if (!t) return;
     t.className = `toast ${type||''}`;
     t.querySelector('.toast-msg').textContent = msg;
     t.classList.add('show');
