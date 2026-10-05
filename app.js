@@ -1,4 +1,4 @@
-/* ============================================
+﻿/* ============================================
    TMB Objectes Perduts - Supabase Edition
    Dades compartides en temps real, sense backend propi.
    ============================================ */
@@ -229,6 +229,19 @@ function renderMatches() {
         const p = allPerduts.find(x => x.id === m.perdut_id) || {que:'—'};
         const sLabel = m.status==='pendent'?'⏳ Pendent':m.status==='confirmat'?'✅ Confirmat':'🔒 Tancat';
 
+        const actionsHTML = `
+            <div class="match-actions" style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; border-top:1px solid #eee; padding-top:8px;">
+                ${m.status === 'pendent' ? `
+                    <button onclick="updateMatchStatus(${m.id}, 'confirmat')" style="background:#28a745;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">✅ Confirmar</button>
+                    <button onclick="updateMatchStatus(${m.id}, 'tancat')" style="background:#6c757d;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">🔒 Tancar</button>
+                ` : ''}
+                ${m.status === 'confirmat' ? `
+                    <button onclick="updateMatchStatus(${m.id}, 'tancat')" style="background:#6c757d;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">🔒 Completar / Tancar</button>
+                ` : ''}
+                <button onclick="deleteMatch(${m.id})" style="background:#dc3545;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;margin-left:auto;">🗑️ Esborrar</button>
+            </div>
+        `;
+
         return `
         <div class="match-card" data-status="${m.status}">
             <div class="match-header">
@@ -239,16 +252,15 @@ function renderMatches() {
                 <div class="match-side trobat-side">
                     <div class="side-label">📦 Trobat #${m.trobat_id}</div>
                     <div class="side-title">${esc(t.que)}</div>
-                    <div class="side-detail">${fmtDate(t.data_objecte)} ${t.linia?'· '+t.linia:''}</div>
                 </div>
                 <div class="match-arrow">⇄</div>
                 <div class="match-side perdut-side">
                     <div class="side-label">🔎 Perdut #${m.perdut_id}</div>
                     <div class="side-title">${esc(p.que)}</div>
-                    <div class="side-detail">${fmtDate(p.data_objecte)} ${p.linia?'· '+p.linia:''}</div>
                 </div>
             </div>
             ${m.notes?`<div class="match-notes"><strong>Notes:</strong> ${esc(m.notes)}</div>`:''}
+            ${actionsHTML}
         </div>`;
     }).join('');
 
@@ -257,8 +269,6 @@ function renderMatches() {
     badge.style.display = pendents > 0 ? 'flex' : 'none';
     badge.textContent = pendents;
 }
-
-// ============================================
 // MATCH FILTERS
 // ============================================
 function initMatchFilters() {
